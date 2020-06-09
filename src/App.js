@@ -3,37 +3,65 @@ import "./App.css";
 import { formatTime } from "./utilities";
 
 const App = () => {
-  const [timer, setTimer] = useState(false);
-  const [timerInterval, setTimerInterval] = useState(1000);
+  const [timerInterval, setTimerInterval] = useState(5000);
   const [pomodoro, setPomodoro] = useState({
     isBreak: false,
     loopCounter: 0,
     time: 0,
+    timer: false,
   });
-  const triggerTimer = () => setTimer(!timer);
+  const triggerTimer = () => {
+    console.log(pomodoro);
+    setPomodoro({ ...pomodoro, timer: !pomodoro.timer });
+  };
+
   const onChangeTimeInterval = (e) => setTimerInterval(+e.target.value);
 
   useEffect(() => {
-    console.log(pomodoro.time, timer, timerInterval, pomodoro);
+    console.log(pomodoro, timerInterval);
     setTimeout(() => {
-      if (timer) {
-        if (pomodoro.time < 25000) {
-          setPomodoro({ ...pomodoro, time: pomodoro.time + timerInterval });
+      //logic
+      if (pomodoro.timer) {
+        if (pomodoro.isBreak) {
+          if (pomodoro.loopCounter < 2) {
+            if (pomodoro.time < 5000) {
+              setPomodoro({ ...pomodoro, time: pomodoro.time + timerInterval });
+            } else {
+              setPomodoro({
+                ...pomodoro,
+                isBreak: false,
+                loopCounter: pomodoro.loopCounter + 1,
+                time: 0,
+              });
+            }
+          } else {
+            if (pomodoro.time < 15000) {
+              setPomodoro({ ...pomodoro, time: pomodoro.time + timerInterval });
+            } else {
+              setPomodoro({
+                isBreak: false,
+                loopCounter: 0,
+                time: 0,
+                timer: false,
+              });
+            }
+          }
         } else {
-          setPomodoro({
-            isBreak: true,
-            loopCounter: pomodoro.loopCounter + 1,
-            time: 0,
-          });
+          if (pomodoro.time < 25000) {
+            setPomodoro({ ...pomodoro, time: pomodoro.time + timerInterval });
+          } else {
+            setPomodoro({ ...pomodoro, isBreak: true, time: 0 });
+          }
         }
       }
+      //logic
     }, timerInterval);
-  }, [pomodoro.time, timer, timerInterval, pomodoro]);
+  }, [pomodoro, timerInterval]);
 
   return (
     <div className="app">
       <div className="timer">{formatTime(pomodoro.time)}</div>
-      <div>The timer is {timer ? "on" : "off"}</div>
+      <div>The timer is {pomodoro.timer ? "on" : "off"}</div>
       <div>
         Current timer interval:
         <input
@@ -43,7 +71,7 @@ const App = () => {
           min={4}
         />
       </div>
-      <button onClick={triggerTimer}>{timer ? "OFF" : "ON"}</button>
+      <button onClick={triggerTimer}>{pomodoro.timer ? "OFF" : "ON"}</button>
     </div>
   );
 };
