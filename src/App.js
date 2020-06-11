@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import { formatTime } from "./utilities";
 
 const App = () => {
-  const [timerInterval, setTimerInterval] = useState(5000);
+  const [timerInterval, setTimerInterval] = useState(1000);
   const [pomodoro, setPomodoro] = useState({
     isBreak: false,
     loopCounter: 0,
@@ -11,16 +11,31 @@ const App = () => {
     timer: false,
   });
   const triggerTimer = () => {
-    console.log(pomodoro);
+    console.log("triggerTimer", pomodoro);
     setPomodoro({ ...pomodoro, timer: !pomodoro.timer });
+  };
+
+  const resetTimer = () => {
+    console.log("resetTimer", pomodoro);
+    setPomodoro({
+      ...pomodoro,
+      isBreak: false,
+      loopCounter: 0,
+      time: 0,
+      timer: false,
+    });
   };
 
   const onChangeTimeInterval = (e) => setTimerInterval(+e.target.value);
 
+  const timeout = useRef(null);
+
   useEffect(() => {
     console.log(pomodoro, timerInterval);
-    setTimeout(() => {
+    clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => {
       //logic
+      console.log("setTimeout");
       if (pomodoro.timer) {
         if (pomodoro.isBreak) {
           if (pomodoro.loopCounter < 2) {
@@ -71,7 +86,10 @@ const App = () => {
           min={4}
         />
       </div>
-      <button onClick={triggerTimer}>{pomodoro.timer ? "OFF" : "ON"}</button>
+      <button onClick={triggerTimer}>
+        {pomodoro.timer ? "Pause" : "Start"}
+      </button>
+      <button onClick={resetTimer}>Reset</button>
     </div>
   );
 };

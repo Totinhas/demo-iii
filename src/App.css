@@ -9,3 +9,7 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+button {
+  width: 50%;
+  margin: 10px;
+}
